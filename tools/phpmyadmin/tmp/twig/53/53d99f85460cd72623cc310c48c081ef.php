@@ -116,6 +116,6 @@ yield _gettext("Error");
 
     public function getSourceContext()
     {
-        return new Source("", "error/generic.twig", "E:\\KULIAH\\MAGANG\\ESDM 2025\\si-komputer\\tools\\phpmyadmin\\templates\\error\\generic.twig");
+        return new Source("", "error/generic.twig", "E:\\KULIAH\\MAGANG\\ESDM 2025\\new\\si-komputer\\tools\\phpmyadmin\\templates\\error\\generic.twig");
     }
 }

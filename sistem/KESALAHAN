@@ -1,1 +1,1 @@
-     - Migrasi gagal. Periksa path database di .env.
+     - Gagal mereset database atau menjalankan seeder.
