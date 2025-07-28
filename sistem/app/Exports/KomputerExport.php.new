@@ -1,0 +1,274 @@
+<?php
+
+namespace App\Exports;
+
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithDrawings;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use Illuminate\Support\Facades\Log;
+
+class KomputerExport implements FromCollection, WithHeadings, ShouldAutoSize, WithStyles, WithDrawings, WithColumnWidths
+{
+    protected $komputers;
+    protected $columns;
+    protected $headerRow;
+
+    public function __construct($komputers, $columns)
+    {
+        $this->komputers = $komputers;
+        $this->columns = $columns;
+        $this->headerRow = $this->getHeaderRow($columns);
+    }
+
+    public function collection()
+    {
+        return collect($this->komputers)->map(function ($komputer) {
+            return $this->formatDataRow($komputer, $this->columns);
+        });
+    }
+
+    public function headings(): array
+    {
+        return $this->headerRow;
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        return [
+            // Style the first row as bold text
+            1 => ['font' => ['bold' => true]],
+        ];
+    }
+
+    public function drawings()
+    {
+        $drawings = [];
+        $hasBarcode = in_array('barcode', $this->columns);
+        
+        if ($hasBarcode) {
+            // Tentukan posisi kolom barcode
+            $barcodeColumnIndex = array_search('barcode', $this->columns);
+            
+            Log::info('Kolom barcode ditemukan pada indeks: ' . $barcodeColumnIndex);
+            
+            // Buat drawing untuk setiap komputer
+            foreach ($this->komputers as $index => $komputer) {
+                // Hanya tambahkan gambar jika komputer memiliki barcode
+                if ($komputer->barcode) {
+                    Log::info('Memproses barcode untuk komputer ID: ' . $komputer->id . ', kode barang: ' . $komputer->kode_barang . ', barcode: ' . $komputer->barcode);
+                    
+                    // Gunakan fungsi helper untuk mencari file barcode
+                    $barcodeFile = $this->findBarcodeFile($komputer->barcode);
+                    
+                    if ($barcodeFile) {
+                        Log::info('File barcode ditemukan di: ' . $barcodeFile);
+                        
+                        $drawing = new Drawing();
+                        $drawing->setName('Barcode ' . $komputer->kode_barang);
+                        $drawing->setDescription('Barcode ' . $komputer->kode_barang);
+                        $drawing->setPath($barcodeFile);
+                        $drawing->setHeight(60);
+                        $drawing->setWidth(120);
+                        $drawing->setCoordinates($this->getExcelColumn($barcodeColumnIndex) . ($index + 2)); // +2 karena header berada di baris 1
+                        $drawing->setOffsetX(5);
+                        $drawing->setOffsetY(5);
+                        
+                        $drawings[] = $drawing;
+                    } else {
+                        // Log bahwa file tidak ditemukan
+                        Log::warning('File barcode tidak ditemukan untuk komputer ID: ' . $komputer->id . ' dengan path ' . $komputer->barcode);
+                    }
+                } else {
+                    Log::info('Komputer ID ' . $komputer->id . ' tidak memiliki data barcode');
+                }
+            }
+        }
+        
+        return $drawings;
+    }
+    
+    /**
+     * Konversi indeks numerik (0, 1, 2, ...) ke huruf kolom Excel (A, B, C, ...)
+     */
+    private function getExcelColumn($index)
+    {
+        $column = '';
+        $index++;
+        
+        while ($index > 0) {
+            $modulo = ($index - 1) % 26;
+            $column = chr(65 + $modulo) . $column;
+            $index = (int)(($index - $modulo) / 26);
+        }
+        
+        return $column;
+    }
+    
+    public function columnWidths(): array
+    {
+        // Menentukan lebar kolom (terutama untuk kolom barcode)
+        $widths = [];
+        
+        // Mencari posisi kolom barcode
+        if (in_array('barcode', $this->columns)) {
+            $barcodeIndex = array_search('barcode', $this->columns);
+            $barcodePosition = $this->getExcelColumn($barcodeIndex);
+            // Atur lebar kolom barcode
+            $widths[$barcodePosition] = 25; // lebar dalam karakter
+        }
+        
+        return $widths;
+    }
+    
+    private function getHeaderRow($columns)
+    {
+        $headerMap = [
+            'kode_barang' => 'Kode Barang',
+            'nama_komputer' => 'Nama Komputer',
+            'ruangan' => 'Ruangan',
+            'nama_pengguna' => 'Pengguna',
+            'spesifikasi' => 'Spesifikasi',
+            'kondisi' => 'Kondisi',
+            'penggunaan' => 'Penggunaan',
+            'tanggal_pengadaan' => 'Tanggal Pengadaan',
+            'pemeliharaan_terakhir' => 'Pemeliharaan Terakhir',
+            'latest_maintenance_date' => 'Tanggal Pemeliharaan Terakhir',
+            'latest_maintenance_type' => 'Jenis Pemeliharaan Terakhir',
+            'latest_maintenance_technician' => 'Teknisi Pemeliharaan Terakhir',
+            'latest_maintenance_result' => 'Hasil Pemeliharaan Terakhir',
+            'latest_maintenance_cost' => 'Biaya Pemeliharaan Terakhir',
+            'barcode' => 'Barcode'
+        ];
+        
+        $headers = [];
+        foreach ($columns as $column) {
+            if (isset($headerMap[$column])) {
+                $headers[] = $headerMap[$column];
+            }
+        }
+        
+        return $headers;
+    }
+
+    private function formatDataRow($komputer, $columns)
+    {
+        $row = [];
+        
+        // Get the latest maintenance record once for multiple columns
+        $latestMaintenance = $komputer->maintenanceHistories()->latest()->first();
+        
+        foreach ($columns as $column) {
+            switch ($column) {
+                case 'kode_barang':
+                    $row[] = $komputer->kode_barang;
+                    break;
+                case 'nama_komputer':
+                    $row[] = $komputer->nama_komputer;
+                    break;
+                case 'ruangan':
+                    $row[] = $komputer->ruangan ? $komputer->ruangan->nama_ruangan : 'Tidak tersedia';
+                    break;
+                case 'nama_pengguna':
+                    $row[] = $komputer->nama_pengguna_sekarang;
+                    break;
+                case 'spesifikasi':
+                    $row[] = "Processor: {$komputer->spesifikasi_processor}, RAM: {$komputer->spesifikasi_ram}, Storage: {$komputer->spesifikasi_penyimpanan}";
+                    break;
+                case 'kondisi':
+                    $row[] = $komputer->kondisi_komputer;
+                    break;
+                case 'penggunaan':
+                    $row[] = $komputer->penggunaan_sekarang;
+                    break;
+                case 'tanggal_pengadaan':
+                    $row[] = $komputer->tahun_pengadaan;
+                    break;
+                case 'pemeliharaan_terakhir':
+                    if ($latestMaintenance) {
+                        $row[] = "Tanggal: " . $latestMaintenance->created_at->format('d-m-Y') . 
+                               ", Jenis: " . $latestMaintenance->jenis_maintenance . 
+                               ", Hasil: " . $latestMaintenance->hasil_maintenance;
+                    } else {
+                        $row[] = 'Belum ada data pemeliharaan';
+                    }
+                    break;
+                case 'latest_maintenance_date':
+                    $row[] = $latestMaintenance ? $latestMaintenance->created_at->format('d-m-Y') : 'Belum ada';
+                    break;
+                case 'latest_maintenance_type':
+                    $row[] = $latestMaintenance ? $latestMaintenance->jenis_maintenance : 'Belum ada';
+                    break;
+                case 'latest_maintenance_technician':
+                    $row[] = $latestMaintenance ? $latestMaintenance->teknisi : 'Belum ada';
+                    break;
+                case 'latest_maintenance_result':
+                    $row[] = $latestMaintenance ? $latestMaintenance->hasil_maintenance : 'Belum ada';
+                    break;
+                case 'latest_maintenance_cost':
+                    $row[] = $latestMaintenance ? 'Rp ' . number_format($latestMaintenance->biaya_maintenance, 0, ',', '.') : 'Belum ada';
+                    break;
+                case 'barcode':
+                    // Tambahkan informasi barcode sebagai teks pendukung
+                    if ($komputer->barcode) {
+                        $row[] = basename($komputer->barcode); // Tampilkan nama file barcode
+                    } else {
+                        $row[] = 'Tidak ada barcode';
+                    }
+                    break;
+            }
+        }
+        
+        return $row;
+    }
+    
+    /**
+     * Helper untuk mencari file barcode di beberapa kemungkinan lokasi
+     */
+    private function findBarcodeFile($relativePath)
+    {
+        // Log untuk debugging
+        Log::info("Mencari barcode dengan path relatif: " . $relativePath);
+        
+        // Ambil nama file dari path
+        if (strpos($relativePath, '/') !== false) {
+            $filename = basename($relativePath);
+        } else {
+            $filename = $relativePath; // Path relatif sudah berupa nama file
+        }
+        
+        // Daftar kemungkinan path lengkap, dengan prioritas pada lokasi yang Anda sebutkan
+        $possiblePaths = [
+            // PRIORITAS 1: Path relatif lengkap
+            storage_path('app/public/' . $relativePath),
+            public_path('storage/' . $relativePath),
+            
+            // PRIORITAS 2: Lokasi di direktori barcode
+            storage_path('app/public/barcode/' . $filename),
+            public_path('storage/barcode/' . $filename),
+            
+            // PRIORITAS 3: Path alternatif lain
+            storage_path('app/public/barcode/' . $filename),
+            public_path('storage/public/barcode/' . $filename),
+            storage_path('app/' . $relativePath),
+            public_path($relativePath),
+            base_path('storage/app/public/' . $relativePath),
+            base_path('public/storage/' . $relativePath),
+        ];
+        
+        foreach ($possiblePaths as $path) {
+            Log::info("Mencoba path: " . $path);
+            if (file_exists($path)) {
+                Log::info("Barcode ditemukan di: " . $path);
+                return $path;
+            }
+        }
+        
+        Log::warning("Barcode tidak ditemukan di semua path yang dicek");
+        return null;
+    }
+}

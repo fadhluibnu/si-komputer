@@ -1,0 +1,23 @@
+Barcode File Location
+
+For barcode images to appear correctly in Excel, PDF, and CSV exports, the barcode files should be stored in one of the following locations:
+
+1. Primary Location: 
+   /storage/app/public/[barcode path stored in database]
+   For example, if database has "barcode/file.png", then file should be at:
+   /storage/app/public/barcode/file.png
+
+2. Alternative Location:
+   /public/storage/[barcode path stored in database]
+   For example, if database has "barcode/file.png", then file should be at:
+   /public/storage/barcode/file.png
+
+3. Filename-only Location (if database stores only filename):
+   /storage/app/public/barcode/[filename]
+   OR
+   /public/storage/barcode/[filename]
+
+Make sure that your storage link is published with:
+php artisan storage:link
+
+And ensure that all barcode images are accessible to the web server with proper permissions.
