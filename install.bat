@@ -1,5 +1,6 @@
 @echo off
-title Portable Laravel Installer - SQLite Edition
+setlocal enabledelayedexpansion
+title Portable Laravel Installer - SQLite Edition v3
 
 cls
 echo.
@@ -13,9 +14,8 @@ cls
 REM Pindah ke direktori tempat skrip ini berada
 cd /d %~dp0
 
-REM ### LANGKAH 1: SETUP .ENV & DEPENDENSI ###
-echo [1/4] Menyiapkan .env dan menginstall dependensi...
-
+REM ### LANGKAH 1: SETUP .ENV ###
+echo [1/6] Menyiapkan file .env...
 if not exist "sistem\.env" (
     if exist "sistem\.env.example" (
         copy "sistem\.env.example" "sistem\.env" > nul
@@ -24,30 +24,34 @@ if not exist "sistem\.env" (
         goto :handle_error
     )
 )
+echo.
 
+REM Pindah ke folder proyek untuk menjalankan sisa perintah
 cd sistem
 
+REM ### LANGKAH 2: VERIFIKASI PATH PHP ###
+echo [2/6] Memverifikasi path PHP...
+if not exist "..\bin\php\php.exe" (
+    echo      -> KESALAHAN: File '..\bin\php\php.exe' tidak ditemukan.
+    echo      Pastikan PHP sudah diekstrak dengan benar ke dalam folder 'bin\php'.
+    goto :handle_error
+)
+echo      -> Path PHP ditemukan.
+echo.
+
+
+REM ### LANGKAH 4: INSTALL DEPENDENSI ###
+echo [4/6] Menginstall dependensi...
 ..\bin\php\php.exe ..\bin\composer.phar install --no-progress --quiet || goto :handle_error
 call ..\bin\nodejs\npm.cmd install --quiet > nul || goto :handle_error
 call ..\bin\nodejs\npm.cmd run build --quiet > nul || goto :handle_error
-
 echo      -> Dependensi berhasil diinstall.
 echo.
 
-REM ### LANGKAH 2: GENERATE KEY & STORAGE LINK ###
-echo [2/4] Menghasilkan App Key & Storage Link...
+REM ### LANGKAH 5: GENERATE KEY & BUAT DATABASE ###
+echo [5/6] Menghasilkan Key dan Menyiapkan Database...
 ..\bin\php\php.exe artisan key:generate || goto :handle_error
 ..\bin\php\php.exe artisan storage:link || goto :handle_error
-echo.
-
-REM ### LANGKAH 3: MEMBUAT FILE DATABASE SQLITE ###
-echo [3/4] Menyiapkan file database SQLite...
-REM Cek apakah file .env sudah dikonfigurasi untuk sqlite
-findstr /C:"DB_CONNECTION=sqlite" .env >nul
-if %errorlevel% neq 0 (
-    echo      -> KESALAHAN: Harap ubah DB_CONNECTION menjadi 'sqlite' di file .env Anda.
-    goto :handle_error
-)
 
 REM Membuat file database kosong jika belum ada
 if not exist "database\database.sqlite" (
@@ -59,10 +63,10 @@ if not exist "database\database.sqlite" (
 )
 echo.
 
-REM ### LANGKAH 4: MIGRASI & SEEDING ###
-echo [4/4] Menjalankan migrasi dan seeder...
+REM ### LANGKAH 6: MIGRASI & SEEDING ###
+echo [6/6] Menjalankan migrasi dan seeder...
 ..\bin\php\php.exe artisan migrate --force
-if %errorlevel% neq 0 (
+if !errorlevel! neq 0 (
     echo      -> KESALAHAN: Migrasi gagal. Periksa path database di .env.
     goto :handle_error
 )
@@ -84,6 +88,7 @@ pause
 exit /b 1
 
 :success
+endlocal
 echo.
 echo #####################################
 echo #        INSTALASI BERHASIL!        #

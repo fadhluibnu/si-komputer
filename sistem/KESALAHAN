@@ -1,1 +1,1 @@
-     - Migrasi database gagal.
+     - Migrasi gagal. Periksa path database di .env.
