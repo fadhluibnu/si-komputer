@@ -103,7 +103,7 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>
-                                            <a href="{{ route('komputer.show', $item->kode_barang) }}" class="text-decoration-none">
+                                            <a href="{{ route('komputer.show', $item->uuid) }}" class="text-decoration-none">
                                                 {{ $item->kode_barang }}
                                             </a>
                                         </td>
@@ -125,18 +125,18 @@
                                                 </button>
                                                 <ul class="dropdown-menu">
                                                     <li><a class="dropdown-item"
-                                                            href="{{ route('komputer.show', $item->kode_barang) }}"><i
+                                                            href="{{ route('komputer.show', $item->uuid) }}"><i
                                                                 class="bi bi-eye"></i> Detail</a></li>
                                                     @can ('superadmin', auth()->user())
                                                         <li><a class="dropdown-item"
-                                                                href="{{ route('komputer.edit', $item->kode_barang) }}"><i
+                                                                href="{{ route('komputer.edit', $item->uuid) }}"><i
                                                                     class="bi bi-pencil"></i> Edit</a></li>
                                                     @endcan
                                                     <li><a class="dropdown-item"
-                                                            href="{{ route('komputer.edit', $item->kode_barang) }}"><i
+                                                            href="{{ route('komputer.edit', $item->uuid) }}"><i
                                                                 class="bi bi-tools"></i> Riwayat Perbaikan</a></li>
                                                     <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                                            data-bs-target="#barcodeModal-{{ $item->kode_barang }}"><i
+                                                            data-bs-target="#barcodeModal-{{ $item->uuid }}"><i
                                                                 class="bi bi-upc-scan"></i> Lihat Barcode</a></li>
                                                     <li>
                                                         <hr class="dropdown-divider">
