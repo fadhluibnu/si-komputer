@@ -1,6 +1,6 @@
 <!-- Modal Tambah Riwayat -->
 <div class="modal fade" id="tambahRiwayatModal" tabindex="-1" aria-labelledby="tambahRiwayatModalLabel"
-    aria-hidden="true">
+    aria-hidden="true" style="z-index: 10500;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">

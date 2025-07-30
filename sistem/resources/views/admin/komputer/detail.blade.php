@@ -170,43 +170,172 @@
                             <i class="bi bi-tools"></i> Riwayat Perbaikan
                         </a>
                     </div>
-                    <div class="btn-group gap-2" role="group">
-                        <form action="{{ route('komputer.destroy', $komputer->uuid) }}" method="POST"
-                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-outline-danger">
-                                <i class="bi bi-trash"></i> Hapus
-                            </button>
-                        </form>
-                        <form action="{{ route('komputer.regenerate-qrcode', $komputer->uuid) }}" method="POST"
-                            class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-outline-dark">
-                                <i class="bi bi-qr-code"></i> Buat Ulang QR Code
-                            </button>
-                        </form>
-                        <div class="dropdown">
-                            <button class="btn btn-success dropdown-toggle" type="button" id="exportDropdown"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-download me-1"></i> Export
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown" style="z-index: 10000;">
-                                <li>
-                                    <a class="dropdown-item"
-                                        href="{{ route('komputer.riwayat.export', ['komputer' => $komputer->uuid, 'format' => 'excel'] + request()->query()) }}">
-                                        <i class="bi bi-file-earmark-excel me-2 text-success"></i> Export Excel
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item"
-                                        href="{{ route('komputer.riwayat.export', ['komputer' => $komputer->uuid, 'format' => 'pdf'] + request()->query()) }}">
-                                        <i class="bi bi-file-earmark-pdf me-2 text-danger"></i> Export PDF
-                                    </a>
-                                </li>
-                            </ul>
+                    <div class="action-buttons-responsive">
+                        <div class="row g-2">
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-auto">
+                                <form action="{{ route('komputer.destroy', $komputer->uuid) }}" method="POST"
+                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')" class="w-100">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-outline-danger w-100">
+                                        <i class="bi bi-trash me-1"></i>
+                                        <span class="d-none d-sm-inline">Hapus</span>
+                                        <span class="d-sm-none">Hapus</span>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-auto">
+                                <form action="{{ route('komputer.regenerate-qrcode', $komputer->uuid) }}" method="POST"
+                                    class="w-100">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-dark w-100">
+                                        <i class="bi bi-qr-code me-1"></i>
+                                        <span class="d-none d-md-inline">Buat Ulang QR Code</span>
+                                        <span class="d-md-none">Buat Ulang QR Code</span>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="col-12 col-md-4 col-lg-auto">
+                                <div class="dropdown w-100">
+                                    <button class="btn btn-success dropdown-toggle w-100" type="button"
+                                        id="exportDropdownResponsive" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-download me-1"></i> Export
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end w-100"
+                                        aria-labelledby="exportDropdownResponsive">
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('komputer.riwayat.export', ['komputer' => $komputer->uuid, 'format' => 'excel'] + request()->query()) }}">
+                                                <i class="bi bi-file-earmark-excel me-2 text-success"></i> Export Excel
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('komputer.riwayat.export', ['komputer' => $komputer->uuid, 'format' => 'pdf'] + request()->query()) }}">
+                                                <i class="bi bi-file-earmark-pdf me-2 text-danger"></i> Export PDF
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    <style>
+                        /* Action Buttons Responsive Styles */
+                        .action-buttons-container {
+                            margin: 1rem 0;
+                        }
+
+                        /* Mobile specific improvements */
+                        @media (max-width: 575.98px) {
+                            .action-buttons-container .btn-sm {
+                                padding: 0.5rem 0.75rem;
+                                font-size: 0.875rem;
+                            }
+
+                            .action-buttons-container .btn {
+                                min-height: 42px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                            }
+                        }
+
+                        /* Tablet improvements */
+                        @media (min-width: 576px) and (max-width: 991.98px) {
+                            .action-buttons-container .btn-sm {
+                                padding: 0.4rem 0.8rem;
+                                font-size: 0.875rem;
+                            }
+                        }
+
+                        /* Desktop improvements */
+                        @media (min-width: 992px) {
+                            .action-buttons-container .btn {
+                                min-width: 120px;
+                            }
+                        }
+
+                        /* Dropdown improvements for all screen sizes */
+                        .dropdown-menu {
+                            z-index: 10000;
+                            min-width: 180px;
+                        }
+
+                        .dropdown-item {
+                            padding: 0.5rem 1rem;
+                            transition: all 0.2s ease;
+                        }
+
+                        .dropdown-item:hover {
+                            background-color: #f8f9fa;
+                            transform: translateX(2px);
+                        }
+
+                        /* Button hover effects */
+                        .btn {
+                            transition: all 0.3s ease;
+                            border-width: 1px;
+                        }
+
+                        .btn:hover {
+                            transform: translateY(-1px);
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .btn:active {
+                            transform: translateY(0);
+                        }
+
+                        /* Ensure consistent button heights */
+                        .btn-sm {
+                            line-height: 1.4;
+                        }
+
+                        /* Better visual separation */
+                        .action-buttons-container {
+                            background: rgba(248, 249, 250, 0.5);
+                            border-radius: 8px;
+                            padding: 1rem;
+                            border: 1px solid rgba(0, 0, 0, 0.05);
+                        }
+
+                        /* Focus states for accessibility */
+                        .btn:focus {
+                            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+                            outline: none;
+                        }
+
+                        /* Loading state (optional) */
+                        .btn.loading {
+                            pointer-events: none;
+                            opacity: 0.6;
+                        }
+
+                        .btn.loading::after {
+                            content: "";
+                            display: inline-block;
+                            width: 1rem;
+                            height: 1rem;
+                            margin-left: 0.5rem;
+                            border: 2px solid transparent;
+                            border-top: 2px solid currentColor;
+                            border-radius: 50%;
+                            animation: spin 1s linear infinite;
+                        }
+
+                        @keyframes spin {
+                            0% {
+                                transform: rotate(0deg);
+                            }
+
+                            100% {
+                                transform: rotate(360deg);
+                            }
+                        }
+                    </style>
                 </div>
             </div>
         </div>
