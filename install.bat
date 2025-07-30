@@ -8,7 +8,6 @@ echo =================================================
 echo ==    INSTALLER PROYEK LARAVEL (SQLite Edition)  ==
 echo =================================================
 echo.
-pause
 cls
 
 REM Pindah ke direktori tempat skrip ini berada
@@ -107,7 +106,7 @@ echo #         INSTALASI GAGAL!          #
 echo #####################################
 echo Periksa pesan kesalahan di atas.
 cd ..
-pause
+
 exit /b 1
 
 :success
@@ -119,4 +118,4 @@ echo #####################################
 echo Proyek Anda siap digunakan. Jalankan '2-start.bat'.
 echo.
 cd ..
-pause
+

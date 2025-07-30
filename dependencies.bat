@@ -17,7 +17,6 @@ echo.
 echo Skrip ini akan mengunduh Node.js jika belum ada.
 echo Pastikan Anda memiliki koneksi internet.
 echo.
-pause
 cls
 
 REM Pindah ke direktori tempat skrip ini berada
@@ -62,7 +61,7 @@ echo #####################################
 echo #   PROSES DOWNLOAD GAGAL!          #
 echo #####################################
 echo Periksa pesan kesalahan di atas.
-pause
+
 exit /b 1
 
 :success
@@ -72,4 +71,4 @@ echo #   DEPENDENSI NODE.JS SIAP!        #
 echo #####################################
 echo Anda sekarang bisa melanjutkan ke langkah selanjutnya.
 echo.
-pause
+
