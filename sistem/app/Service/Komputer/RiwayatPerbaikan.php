@@ -53,7 +53,7 @@ class RiwayatPerbaikan
     {
         return $request->validate([
             'jenis_maintenance' => 'required|string|max:255',
-            'keterangan' => 'nullable|string|max:1000',
+            'keterangan' => 'nullable|string',
             'teknisi' => 'required|string|max:255',
             'komponen_diganti' => 'nullable|string|max:255',
             'biaya_maintenance' => 'nullable|numeric|min:0',
@@ -66,7 +66,7 @@ class RiwayatPerbaikan
     {
         return $request->validate([
             'jenis_maintenance' => 'required|string|max:255',
-            'keterangan' => 'nullable|string|max:1000',
+            'keterangan' => 'nullable|string',
             'teknisi' => 'required|string|max:255',
             'komponen_diganti' => 'nullable|string|max:255',
             'biaya_maintenance' => 'nullable|numeric|min:0',

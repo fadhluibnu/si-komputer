@@ -28,7 +28,7 @@ class RuanganSeeder extends Seeder
             'Ruang Kabid Ketenagalistrikan',
             'Ruang Ketenagalistrikan',
             'Ruang Kasubag Umum dan Kepegawaian',
-            'Ruang Umum dan Kepegawaian',
+            'Ruang Sub Bagian Umum dan Kepegawaian',
             'Ruang Kasubag Bagian Program',
             'Ruang Sub Bagian Program',
             'Ruang Kasubag Keuangan',

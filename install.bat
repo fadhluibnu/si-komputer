@@ -43,21 +43,7 @@ echo      -> Path database berhasil diatur.
 echo.
 
 REM Pindah ke folder proyek untuk menjalankan sisa perintah
-
 cd sistem
-
-REM ### LANGKAH 2: VERIFIKASI PATH APLIKASI ###
-echo [2/5] Memverifikasi path aplikasi portabel...
-if not exist "..\bin\php\php.exe" (
-    echo      -> KESALAHAN: File '..\bin\php\php.exe' tidak ditemukan.
-    goto :handle_error
-)
-if not exist "..\bin\nodejs\node.exe" (
-    echo      -> KESALAHAN: File '..\bin\nodejs\node.exe' tidak ditemukan.
-    goto :handle_error
-)
-echo      -> Path PHP dan Node.js ditemukan.
-echo.
 
 REM ####################################################################
 REM ### PENTING: Menambahkan path Node.js portabel ke PATH sementara ###
@@ -66,16 +52,41 @@ REM ####################################################################
 
 REM ### LANGKAH 3: INSTALL DEPENDENSI ###
 echo [3/5] Menginstall dependensi...
-..\bin\php\php.exe ..\bin\composer.phar install || goto :handle_error
-call npm install || goto :handle_error
-call npm run build || goto :handle_error
+..\bin\php\php.exe ..\bin\composer.phar install
+if !errorlevel! neq 0 (
+    echo      -> KESALAHAN: Gagal menginstall dependensi Composer.
+    goto :handle_error
+)
+
+call npm install
+if !errorlevel! neq 0 (
+    echo      -> KESALAHAN: Gagal menginstall dependensi npm.
+    goto :handle_error
+)
+
+call npm run build
+if !errorlevel! neq 0 (
+    echo      -> KESALAHAN: Gagal menjalankan npm run build.
+    goto :handle_error
+)
+
 echo      -> Dependensi berhasil diinstall.
 echo.
 
 REM ### LANGKAH 4: GENERATE KEY & BUAT DATABASE ###
 echo [4/5] Menghasilkan Key dan Menyiapkan Database...
-..\bin\php\php.exe artisan key:generate || goto :handle_error
-..\bin\php\php.exe artisan storage:link || goto :handle_error
+..\bin\php\php.exe artisan key:generate
+if !errorlevel! neq 0 (
+    echo      -> KESALAHAN: Gagal generate application key.
+    goto :handle_error
+)
+
+..\bin\php\php.exe artisan storage:link
+if !errorlevel! neq 0 (
+    echo      -> KESALAHAN: Gagal membuat storage link.
+    goto :handle_error
+)
+
 if not exist "database\database.sqlite" (
     if not exist "database" mkdir "database"
     type nul > "database\database.sqlite"
@@ -97,7 +108,7 @@ if !errorlevel! neq 0 (
 echo      -> Database berhasil direset dan diisi data awal.
 echo.
 
-goto:success
+goto :success
 
 :handle_error
 echo.
@@ -105,17 +116,18 @@ echo #####################################
 echo #         INSTALASI GAGAL!          #
 echo #####################################
 echo Periksa pesan kesalahan di atas.
-cd ..
-
+echo.
+cd /d %~dp0
+endlocal
 exit /b 1
 
 :success
-endlocal
 echo.
 echo #####################################
 echo #        INSTALASI BERHASIL!        #
 echo #####################################
-echo Proyek Anda siap digunakan. Jalankan '2-start.bat'.
+echo Proyek Anda siap digunakan. Jalankan 'start.bat'.
 echo.
-cd ..
-
+cd /d %~dp0
+endlocal
+exit /b 0
