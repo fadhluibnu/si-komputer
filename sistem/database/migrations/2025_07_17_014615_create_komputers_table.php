@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->constrained('users');
             $table->string('kode_barang');
-            $table->string('nama_komputer')->default('00000');
+            $table->string('nama_komputer')->nullable()->default('00000');
             $table->string('merek_komputer');
             $table->integer('tahun_pengadaan');
             $table->string('spesifikasi_ram');
