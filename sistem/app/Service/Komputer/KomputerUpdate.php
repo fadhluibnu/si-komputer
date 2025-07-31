@@ -32,7 +32,7 @@ class KomputerUpdate
                 'string',
                 Rule::unique('komputers')->ignore($uuid, 'uuid')
             ],
-            'nama_komputer' => 'required|string',
+            'nama_komputer' => 'nullable|string',
             'merek_komputer' => 'required|string',
             'tahun_pengadaan' => 'required|integer|min:2000|max:' . date('Y'),
             'spesifikasi_ram' => 'required|string',

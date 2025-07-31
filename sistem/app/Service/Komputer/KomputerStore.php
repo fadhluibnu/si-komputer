@@ -26,7 +26,7 @@ class KomputerStore
     {
         $validated = $request->validate([
             'kode_barang' => 'required|string|unique:komputers,kode_barang',
-            'nama_komputer' => 'required|string',
+            'nama_komputer' => 'nullable|string',
             'merek_komputer' => 'required|string',
             'tahun_pengadaan' => 'required|integer|min:2000|max:' . date('Y'),
             'spesifikasi_ram' => 'required|string',

@@ -67,12 +67,12 @@
                                 @enderror
                             </div>
                             <div class="mb-3">
-                                <label for="nama_komputer" class="form-label">Nomor Komputer <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('nama_komputer') is-invalid @enderror" id="nama_komputer" name="nama_komputer" value="{{ old('nama_komputer', $komputer->nama_komputer) }}" placeholder="Contoh: PC-ADMIN-01" required>
+                                <label for="nama_komputer" class="form-label">Nama Komputer </label>
+                                <input type="text" class="form-control @error('nama_komputer') is-invalid @enderror" id="nama_komputer" name="nama_komputer" value="{{ old('nama_komputer', $komputer->nama_komputer) }}" placeholder="Contoh: PC-ADMIN-01">
                                 @error('nama_komputer')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @else
-                                    <div class="invalid-feedback">Nomor komputer wajib diisi</div>
+                                    <div class="invalid-feedback">Nama komputer wajib diisi</div>
                                 @enderror
                             </div>
                              <div class="mb-3">
