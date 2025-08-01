@@ -56,23 +56,36 @@ class KomputerStore
     public function generateQRCode($uuid, $komputerData = null)
     {
         // Path yang akan digunakan untuk menyimpan QR code
+
+        // if ($komputerData === null) {
+        // } else {
+        //     $filename = "{$komputerData['nama_pengguna_sekarang']}-{$komputerData['kode_barang']}-{$uuid}.jpg";
+        // }
+
+        // For existing computers, get the data from database
+        // For new computers, use the data provided in $komputerData
+        if ($komputerData === null) {
+            $komputer = \App\Models\Komputer::where('uuid', $uuid)->first();
+            $filename = "{$komputer->nama_pengguna_sekarang}-{$komputer->kode_barang}-{$uuid}.jpg";
+        } else {
+            $filename = "{$komputerData['nama_pengguna_sekarang']}-{$komputerData['kode_barang']}-{$uuid}.jpg";
+        }
         $directory = 'barcode';
-        $filename = "{$komputerData['nama_pengguna_sekarang']}-{$komputerData['kode_barang']}-{$uuid}.jpg";
         $path = "{$directory}/{$filename}";
 
         // For existing computers, get the data from database
         // For new computers, use the data provided in $komputerData
         if ($komputerData === null) {
             $komputer = \App\Models\Komputer::where('uuid', $uuid)
-                ->with(['ruangan', 'riwayatPerbaikan' => function($query) {
+                ->with(['ruangan', 'riwayatPerbaikan' => function ($query) {
                     $query->orderBy('created_at', 'desc')->limit(2);
                 }])
                 ->first();
-                
+
             if (!$komputer) {
                 // Create simple QR code with only URL
                 $qrTextContent = "Cek Online: " . config('app.url') . "/scan/{$uuid}";
-                
+
                 // Konfigurasi QR code sederhana
                 $barcodeOptions = new QROptions([
                     "outputType" => QROutputInterface::GDIMAGE_PNG,
@@ -80,23 +93,23 @@ class KomputerStore
                     "scale" => 10,
                     "imageBase64" => false,
                 ]);
-                
+
                 // Buat objek QR code
                 $qrCode = new QRCode($barcodeOptions);
-                
+
                 // Generate QR code sebagai string
                 $qrCodeImage = $qrCode->render($qrTextContent);
-                
+
                 // Simpan file menggunakan Storage
                 Storage::put($path, $qrCodeImage);
-                
+
                 // Return path publik yang bisa diakses browser
                 return $path;
             }
         } else {
             // Use the provided data (for new computer)
             $komputer = (object) $komputerData;
-            
+
             // We don't have ruangan or riwayat perbaikan for new computers
             $komputer->ruangan = (object) ['nama_ruangan' => $komputerData['ruangan_name'] ?? 'Tidak ditentukan'];
             $komputer->riwayatPerbaikan = collect();
@@ -104,7 +117,7 @@ class KomputerStore
 
         // Format the text content for the QR code
         $qrTextContent = "Cek Online: " . config('app.url') . "/scan/{$uuid}\n\n";
-        
+
         // Detail Komputer
         // $qrTextContent .= "DETAIL KOMPUTER\n";
         // $qrTextContent .= "Nama Komputer: {$komputer->nama_komputer}\n";
@@ -112,7 +125,7 @@ class KomputerStore
         // $qrTextContent .= "Merek: {$komputer->merek_komputer}\n";
         // $qrTextContent .= "Pengguna: " . ($komputer->nama_pengguna_sekarang ?? 'Tidak ditentukan') . "\n";
         // $qrTextContent .= "Ruangan: {$komputer->ruangan->nama_ruangan}\n\n";
-        
+
         // // Kondisi Komputer
         // $qrTextContent .= "KONDISI KOMPUTER\n";
         // $qrTextContent .= "Kondisi: {$komputer->kondisi_komputer}\n";
@@ -120,7 +133,7 @@ class KomputerStore
         // $qrTextContent .= "Processor: {$komputer->spesifikasi_processor}\n";
         // $qrTextContent .= "RAM: {$komputer->spesifikasi_ram}\n";
         // $qrTextContent .= "Storage: {$komputer->spesifikasi_penyimpanan}\n\n";
-        
+
         // // Riwayat Pemeliharaan
         // $qrTextContent .= "RIWAYAT PEMELIHARAAN\n";
         // if (isset($komputer->riwayatPerbaikan) && $komputer->riwayatPerbaikan->count() > 0) {
@@ -135,7 +148,7 @@ class KomputerStore
         // } else {
         //     $qrTextContent .= "Belum ada riwayat pemeliharaan\n";
         // }
-        
+
         // Konfigurasi QR code - Meningkatkan error correction untuk menampung lebih banyak teks
         $barcodeOptions = new QROptions([
             "outputType" => QROutputInterface::GDIMAGE_PNG,
@@ -162,12 +175,12 @@ class KomputerStore
         } catch (\Exception $e) {
             // If we get an error (likely due to content being too large), generate a simpler QR code
             \Illuminate\Support\Facades\Log::warning("QR code content too large, falling back to URL only: " . $e->getMessage());
-            
+
             // Create simple QR code with only URL and basic info
             $simpleQrContent = "Cek Online: " . config('app.url') . "/scan/{$uuid}\n\n";
             $simpleQrContent .= "Komputer: {$komputer->nama_komputer}\n";
             $simpleQrContent .= "Kode: {$komputer->kode_barang}\n";
-            
+
             $qrCodeImage = $qrCode->render($simpleQrContent);
         }
 
