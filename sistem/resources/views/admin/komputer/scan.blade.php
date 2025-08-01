@@ -21,7 +21,7 @@
                         <i class="bi bi-info-circle"></i> Anda dapat mengakses halaman ini kapanpun dengan cara scan barcode/QR code pada komputer.
                     </div>
                     
-                    @if(isset($qrTextContent))
+                    {{-- @if(isset($qrTextContent))
                     <div class="mb-4">
                         <div class="card border">
                             <div class="card-header bg-dark text-white">
@@ -32,7 +32,7 @@
                             </div>
                         </div>
                     </div>
-                    @endif
+                    @endif --}}
                     
                     <div class="row">
                         <!-- Detail Komputer Section -->

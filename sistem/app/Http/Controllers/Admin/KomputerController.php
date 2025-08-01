@@ -142,7 +142,7 @@ class KomputerController extends Controller
             $komputer = Komputer::where('uuid', $uuid)->firstOrFail();
             
             // Generate barcode with UUID - for updates, we use the existing data
-            $barcode = $this->komputerStore->generateQRCode($uuid);
+            $barcode = $this->komputerStore->generateQRCode($uuid, $validated);
             $validated['barcode'] = $barcode;
 
             $komputer = $this->komputerUpdate->updateKomputer($komputer, $validated);

@@ -57,7 +57,7 @@ class KomputerStore
     {
         // Path yang akan digunakan untuk menyimpan QR code
         $directory = 'barcode';
-        $filename = "{$uuid}.jpg";
+        $filename = "{$komputerData['nama_pengguna_sekarang']}-{$komputerData['kode_barang']}-{$uuid}.jpg";
         $path = "{$directory}/{$filename}";
 
         // For existing computers, get the data from database

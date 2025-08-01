@@ -42,14 +42,14 @@ class Komputer extends Model
     /**
      * Boot the model.
      */
-    protected static function boot()
-    {
-        parent::boot();
+    // protected static function boot()
+    // {
+    //     parent::boot();
         
-        static::creating(function ($model) {
-            $model->uuid = (string) Str::uuid();
-        });
-    }
+    //     static::creating(function ($model) {
+    //         $model->uuid = (string) Str::uuid();
+    //     });
+    // }
     
     /**
      * Get the route key for the model.
